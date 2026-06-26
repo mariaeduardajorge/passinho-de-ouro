@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo — Passinho de Ouro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --gold: #f5a623;
+      --gold-dark: #e09000;
+      --blue: #1a3c6e;
+      --blue-light: #2563eb;
+      --green: #2e7d32;
+      --green-light: #43a047;
+      --red: #c62828;
+      --red-light: #ef5350;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Animações */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .portal-tab.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid var(--gray-100);
+      margin-bottom: 24px;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--gray-700);
+      font-size: 0.9rem;
+      border-left: 4px solid transparent;
+    }
+
+    .sidebar-nav-item:hover {
+      background: var(--gray-50);
+      color: var(--blue-light);
+      padding-left: 24px;
+    }
+
+    .sidebar-nav-item.active {
+      background: #eff6ff;
+      color: var(--blue-light);
+      border-left-color: var(--blue-light);
+      font-weight: 600;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .portal-header {
+      background: linear-gradient(135deg, var(--blue) 0%, #1e4d8c 100%);
+      color: white;
+      padding: 0 24px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+
+    .portal-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .portal-header-brand .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .portal-header-brand h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .portal-header-brand span {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      display: block;
+    }
+
+    .portal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+    }
+
+    .user-badge i { color: var(--gold); }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== LAYOUT ===== */
+    .portal-layout {
+      display: flex;
+      min-height: calc(100vh - 70px);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .portal-sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid var(--gray-200);
+      padding: 24px 0;
+      position: sticky;
+      top: 70px;
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      padding: 0 20px 8px;
+      margin-top: 16px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--gray-700);
+      font-size: 0.9rem;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-nav-item:hover {
+      background: var(--gray-50);
+      color: var(--blue-light);
+    }
+
+    .sidebar-nav-item.active {
+      background: #eff6ff;
+      color: var(--blue-light);
+      border-left-color: var(--blue-light);
+      font-weight: 600;
+    }
+
+    .sidebar-nav-item i {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .portal-main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* ===== ABAS ===== */
+    .portal-tab {
+      display: none;
+    }
+
+    .portal-tab.active {
+      display: block;
+    }
+
+    /* ===== CARD DO ADMIN ===== */
+    .admin-profile-card {
+      background: linear-gradient(135deg, var(--blue) 0%, #2563eb 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .admin-avatar {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .admin-info h2 { font-size: 1.4rem; font-weight: 700; }
+    .admin-info p { opacity: 0.85; font-size: 0.9rem; margin-top: 4px; }
+
+    /* ===== SEÇÕES ===== */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i { color: var(--blue-light); }
+
+    /* ===== FORMULÁRIO ===== */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--blue-light);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* ===== BOTÕES ===== */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--blue-light);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-success {
+      background: var(--green-light);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #388e3c;
+    }
+
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--gray-700);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    .btn-danger {
+      background: var(--red-light);
+      color: white;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+    }
+
+    .btn-danger:hover {
+      background: var(--red);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ===== TABELA ===== */
+    .table-wrap {
+      background: white;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background: var(--gray-50);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.9rem;
+    }
+
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover td { background: var(--gray-50); }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .label {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+    }
+
+    /* ===== ALERTAS ===== */
+    .alert {
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      color: var(--green);
+      border: 1px solid #86efac;
+    }
+
+    .alert-error {
+      background: #fef2f2;
+      color: var(--red);
+      border: 1px solid #fca5a5;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      color: var(--blue-light);
+      border: 1px solid #93c5fd;
+    }
+
+    .alert i { font-size: 1.2rem; }
+
+    /* ===== LOADING ===== */
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray-500);
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--blue-light);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 768px) {
+      .portal-sidebar {
+        display: none;
+      }
+
+      .portal-main {
+        padding: 20px 16px;
+      }
+
+      .admin-profile-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .portal-header-brand span { display: none; }
+      .user-badge { display: none; }
+    }
+
+    /* ===== MOBILE NAV ===== */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--gray-200);
+      padding: 8px 0 env(safe-area-inset-bottom);
+      z-index: 100;
+    }
+
+    .mobile-nav-items {
+      display: flex;
+      justify-content: space-around;
+      overflow-x: auto;
+    }
+
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--gray-500);
+      font-size: 0.65rem;
+      transition: color 0.2s;
+      border: none;
+      background: none;
+      font-family: 'Poppins', sans-serif;
+      white-space: nowrap;
+    }
+
+    .mobile-nav-item i { font-size: 1.2rem; }
+    .mobile-nav-item.active { color: var(--blue-light); }
+
+    @media (max-width: 768px) {
+      .mobile-nav { display: block; }
+      .portal-main { padding-bottom: 80px; }
+    }
+
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+      .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { font-size: 0.8rem; min-width: 500px; }
+      .portal-main { padding: 12px 10px; }
+      .card { padding: 14px; }
+      .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .modal-content { width: 96%; padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="portal-header">
+    <div class="portal-header-brand">
+      <div class="brand-icon"><i class="fa-solid fa-shield"></i></div>
+      <div>
+        <h1>Painel Administrativo</h1>
+        <span>Instituto Passinho de Ouro</span>
+      </div>
+    </div>
+    <div class="portal-header-actions">
+      <div class="user-badge">
+        <i class="fa-solid fa-user-circle"></i>
+        <span id="header-nome-usuario">Carregando...</span>
+      </div>
+      <button class="btn-logout" id="btn-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </header>
+
+  <div class="portal-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+      <p class="sidebar-section-title">Menu</p>
+      <div class="sidebar-nav-item active" data-tab="visao-geral">
+        <i class="fa-solid fa-chart-line"></i> Visão Geral
+      </div>
+      <div class="sidebar-nav-item" data-tab="alunos">
+        <i class="fa-solid fa-users-rectangle"></i> Gerenciar Alunos
+      </div>
+      <div class="sidebar-nav-item" data-tab="responsaveis">
+        <i class="fa-solid fa-user-tie"></i> Responsáveis
+      </div>
+      <div class="sidebar-nav-item" data-tab="financeiro">
+        <i class="fa-solid fa-money-bill-wave"></i> Financeiro
+      </div>
+      <div class="sidebar-nav-item" data-tab="comunicados">
+        <i class="fa-solid fa-megaphone"></i> Comunicados
+      </div>
+      <p class="sidebar-section-title">Conta</p>
+      <div class="sidebar-nav-item" id="sidebar-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="portal-main">
+
+      <!-- ABA: VISÃO GERAL -->
+      <div class="portal-tab active" id="tab-visao-geral">
+        <div class="admin-profile-card">
+          <div class="admin-avatar">
+            <i class="fa-solid fa-shield"></i>
+          </div>
+          <div class="admin-info">
+            <h2 id="admin-nome">Carregando...</h2>
+            <p id="admin-email"></p>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="value" style="color: var(--blue-light);" id="stat-alunos">--</div>
+            <div class="label">Alunos Cadastrados</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" style="color: var(--green);" id="stat-responsaveis">--</div>
+            <div class="label">Responsáveis</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" style="color: var(--gold-dark);" id="stat-pendentes">--</div>
+            <div class="label">Mensalidades Pendentes</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" style="color: var(--red-light);" id="stat-comunicados">--</div>
+            <div class="label">Comunicados Ativos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA: GERENCIAR ALUNOS -->
+      <div class="portal-tab" id="tab-alunos">
+        <h2 class="section-title"><i class="fa-solid fa-users-rectangle"></i> Gerenciar Alunos</h2>
+        
+        <div id="alert-alunos"></div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 20px;">Cadastrar Novo Aluno</h3>
+          <form id="form-aluno">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-nome-aluno">Nome Completo</label>
+                <input type="text" id="input-nome-aluno" required />
+              </div>
+              <div class="form-group">
+                <label for="input-serie">Série</label>
+                <select id="input-serie" required>
+                  <option value="">-- Escolha a série --</option>
+                  <option value="1º Ano">1º Ano</option>
+                  <option value="2º Ano">2º Ano</option>
+                  <option value="3º Ano">3º Ano</option>
+                  <option value="4º Ano">4º Ano</option>
+                  <option value="5º Ano">5º Ano</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-turma">Turma</label>
+                <select id="input-turma" required>
+                  <option value="">-- Escolha a turma --</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="input-responsavel-id">Responsável</label>
+                <select id="input-responsavel-id" required>
+                  <option value="">-- Escolha um responsável --</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Cadastrar Aluno
+              </button>
+              <button type="reset" class="btn btn-secondary">
+                <i class="fa-solid fa-redo"></i> Limpar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 32px;"><i class="fa-solid fa-list"></i> Lista de Alunos</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>RA</th>
+                <th>Série</th>
+                <th>Turma</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="alunos-tbody">
+              <tr><td colspan="5"><div class="loading-state"><div class="spinner"></div><p>Carregando alunos...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ABA: RESPONSÁVEIS -->
+      <div class="portal-tab" id="tab-responsaveis">
+        <h2 class="section-title"><i class="fa-solid fa-user-tie"></i> Gerenciar Responsáveis</h2>
+        
+        <div id="alert-responsaveis"></div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 20px;">Cadastrar Novo Responsável</h3>
+          <form id="form-responsavel">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-nome-resp">Nome Completo</label>
+                <input type="text" id="input-nome-resp" required />
+              </div>
+              <div class="form-group">
+                <label for="input-email-resp">E-mail</label>
+                <input type="email" id="input-email-resp" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-telefone-resp">Telefone</label>
+                <input type="tel" id="input-telefone-resp" />
+              </div>
+              <div class="form-group">
+                <label for="input-senha-resp">Senha</label>
+                <input type="password" id="input-senha-resp" required />
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Cadastrar Responsável
+              </button>
+              <button type="reset" class="btn btn-secondary">
+                <i class="fa-solid fa-redo"></i> Limpar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 32px;"><i class="fa-solid fa-list"></i> Lista de Responsáveis</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="responsaveis-tbody">
+              <tr><td colspan="4"><div class="loading-state"><div class="spinner"></div><p>Carregando responsáveis...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ABA: FINANCEIRO -->
+      <div class="portal-tab" id="tab-financeiro">
+        <h2 class="section-title"><i class="fa-solid fa-money-bill-wave"></i> Gerenciar Financeiro</h2>
+        
+        <div id="alert-financeiro"></div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 20px;">Registrar Mensalidade</h3>
+          <form id="form-financeiro">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="select-aluno-fin">Aluno</label>
+                <select id="select-aluno-fin" required>
+                  <option value="">-- Escolha um aluno --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="input-valor">Valor (R$)</label>
+                <input type="number" id="input-valor" min="0" step="0.01" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-vencimento">Data de Vencimento</label>
+                <input type="date" id="input-vencimento" required />
+              </div>
+              <div class="form-group">
+                <label for="select-status-fin">Status</label>
+                <select id="select-status-fin" required>
+                  <option value="pendente">Pendente</option>
+                  <option value="pago">Pago</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Registrar Mensalidade
+              </button>
+              <button type="reset" class="btn btn-secondary">
+                <i class="fa-solid fa-redo"></i> Limpar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 32px;"><i class="fa-solid fa-list"></i> Mensalidades Pendentes</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Aluno</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="financeiro-tbody">
+              <tr><td colspan="4"><div class="loading-state"><div class="spinner"></div><p>Carregando dados financeiros...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ABA: COMUNICADOS -->
+      <div class="portal-tab" id="tab-comunicados">
+        <h2 class="section-title"><i class="fa-solid fa-megaphone"></i> Gerenciar Comunicados</h2>
+        
+        <div id="alert-comunicados"></div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 20px;">Criar Novo Comunicado</h3>
+          <form id="form-comunicado">
+            <div class="form-group">
+              <label for="input-titulo-com">Título</label>
+              <input type="text" id="input-titulo-com" required />
+            </div>
+
+            <div class="form-group">
+              <label for="input-mensagem-com">Mensagem</label>
+              <textarea id="input-mensagem-com" rows="5" required></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-paper-plane"></i> Publicar Comunicado
+              </button>
+              <button type="reset" class="btn btn-secondary">
+                <i class="fa-solid fa-redo"></i> Limpar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <h3 class="section-title" style="margin-top: 32px;"><i class="fa-solid fa-list"></i> Comunicados Publicados</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="comunicados-tbody">
+              <tr><td colspan="3"><div class="loading-state"><div class="spinner"></div><p>Carregando comunicados...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-items">
+      <button class="mobile-nav-item active" data-tab="visao-geral">
+        <i class="fa-solid fa-chart-line"></i> Visão Geral
+      </button>
+      <button class="mobile-nav-item" data-tab="alunos">
+        <i class="fa-solid fa-users"></i> Alunos
+      </button>
+      <button class="mobile-nav-item" data-tab="responsaveis">
+        <i class="fa-solid fa-user-tie"></i> Responsáveis
+      </button>
+      <button class="mobile-nav-item" data-tab="financeiro">
+        <i class="fa-solid fa-money-bill"></i> Financeiro
+      </button>
+      <button class="mobile-nav-item" data-tab="comunicados">
+        <i class="fa-solid fa-megaphone"></i> Comunicados
+      </button>
+    </div>
+  </nav>
+
+  <script src="mock-db.js"></script>\n  <script>
+    'use strict';
+
+    const API_URL = '/api';
+
+    // ===== VERIFICAR SESSÃO =====
+    const token = localStorage.getItem('passinho_token');
+    const userRaw = localStorage.getItem('passinho_user');
+
+    if (!token || !userRaw) {
+      window.location.href = 'index.html#aluno';
+    }
+
+    const user = JSON.parse(userRaw);
+
+    // Validar se é admin
+    if (user.tipo !== 'admin') {
+      alert('Acesso restrito a administradores!');
+      window.location.href = 'index.html#aluno';
+    }
+
+    // Exibir nome no header
+    document.getElementById('header-nome-usuario').textContent = user.nome;
+    document.getElementById('admin-nome').textContent = user.nome;
+    document.getElementById('admin-email').textContent = user.email || '';
+
+    // ===== LOGOUT =====
+    function logout() {
+      localStorage.removeItem('passinho_token');
+      localStorage.removeItem('passinho_user');
+      window.location.href = 'index.html#aluno';
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', logout);
+    document.getElementById('sidebar-logout').addEventListener('click', logout);
+
+    // ===== NAVEGAÇÃO POR ABAS =====
+    const navItems = document.querySelectorAll('[data-tab]');
+
+    function showTab(tabId) {
+      document.querySelectorAll('.portal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[data-tab]').forEach(n => n.classList.remove('active'));
+
+      const tab = document.getElementById(`tab-${tabId}`);
+      if (tab) tab.classList.add('active');
+
+      document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(n => n.classList.add('active'));
+    }
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const tabId = item.dataset.tab;
+        if (tabId) showTab(tabId);
+      });
+    });
+
+    // ===== FETCH HELPER =====
+    async function apiFetch(endpoint, options = {}) {
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      return res.json();
+    }
+
+    // ===== MOSTRAR ALERTA =====
+    function showAlert(containerId, type, message) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+      container.innerHTML = `
+        <div class="alert alert-${type}">
+          <i class="fa-solid ${icon}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    // ===== FORMATAR DATA =====
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    // ===== FORMATAR MOEDA =====
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+
+    // ===== CARREGAR ESTATÍSTICAS =====
+    async function loadStats() {
+      try {
+        const [alunos, users, financeiro, comunicados] = await Promise.all([
+          apiFetch('/alunos'),
+          apiFetch('/auth/users'),
+          apiFetch('/financeiro'),
+          apiFetch('/comunicados')
+        ]);
+
+        const responsaveis = users.filter(u => u.tipo === 'responsavel');
+
+        document.getElementById('stat-alunos').textContent = alunos.length;
+        document.getElementById('stat-responsaveis').textContent = responsaveis.length;
+        
+        const pendentes = financeiro.filter(f => f.status === 'pendente').length;
+        document.getElementById('stat-pendentes').textContent = pendentes;
+        
+        document.getElementById('stat-comunicados').textContent = comunicados.length;
+      } catch (err) {
+        console.error('Erro ao carregar estatísticas:', err);
+      }
+    }
+
+    // ===== CADASTRAR ALUNO =====
+    document.getElementById('form-aluno').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('input-nome-aluno').value;
+      const serie = document.getElementById('input-serie').value;
+      const turma = document.getElementById('input-turma').value;
+      const responsavel_id = document.getElementById('input-responsavel-id').value;
+
+      try {
+        const response = await apiFetch('/alunos', {
+          method: 'POST',
+          body: JSON.stringify({ nome, serie, turma, responsavel_id })
+        });
+
+        showAlert('alert-alunos', 'success', `Aluno cadastrado com sucesso! RA: ${response.ra}`);
+        document.getElementById('form-aluno').reset();
+        loadAlunos();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-alunos', 'error', 'Erro ao cadastrar aluno: ' + err.message);
+      }
+    });
+
+    // ===== CARREGAR ALUNOS =====
+    let alunos = [];
+
+    async function loadAlunos() {
+      const tbody = document.getElementById('alunos-tbody');
+      try {
+        alunos = await apiFetch('/alunos');
+
+        if (!alunos.length) {
+          tbody.innerHTML = '<tr><td colspan="5"><div class="loading-state"><p>Nenhum aluno cadastrado.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = alunos.map(a => `
+          <tr>
+            <td><strong>${a.nome}</strong></td>
+            <td>${a.ra}</td>
+            <td>${a.serie}</td>
+            <td>${a.turma}</td>
+            <td><button class="btn btn-danger" onclick="deleteAluno('${a._id}')"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+
+        // Atualizar selects
+        const selectAlunoFin = document.getElementById('select-aluno-fin');
+        selectAlunoFin.innerHTML = '<option value="">-- Escolha um aluno --</option>';
+        alunos.forEach(a => {
+          const option = document.createElement('option');
+          option.value = a._id;
+          option.textContent = a.nome;
+          selectAlunoFin.appendChild(option);
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="loading-state"><p>Erro ao carregar alunos.</p></div></td></tr>';
+      }
+    }
+
+    // ===== DELETAR ALUNO =====
+    async function deleteAluno(alunoId) {
+      if (!confirm('Tem certeza que deseja deletar este aluno?')) return;
+
+      try {
+        await apiFetch(`/alunos/${alunoId}`, { method: 'DELETE' });
+        showAlert('alert-alunos', 'success', 'Aluno deletado com sucesso!');
+        loadAlunos();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-alunos', 'error', 'Erro ao deletar aluno: ' + err.message);
+      }
+    }
+
+    // ===== CARREGAR RESPONSÁVEIS =====
+    let responsaveis = [];
+
+    async function loadResponsaveis() {
+      const tbody = document.getElementById('responsaveis-tbody');
+      try {
+        const users = await apiFetch('/auth/users');
+        responsaveis = users.filter(u => u.tipo === 'responsavel');
+
+        if (!responsaveis.length) {
+          tbody.innerHTML = '<tr><td colspan="4"><div class="loading-state"><p>Nenhum responsável cadastrado.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = responsaveis.map(r => `
+          <tr>
+            <td><strong>${r.nome}</strong></td>
+            <td>${r.email}</td>
+            <td>${r.telefone || '--'}</td>
+            <td><button class="btn btn-danger" onclick="deleteResponsavel('${r._id}')"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+
+        // Atualizar select
+        const selectResp = document.getElementById('input-responsavel-id');
+        selectResp.innerHTML = '<option value="">-- Escolha um responsável --</option>';
+        responsaveis.forEach(r => {
+          const option = document.createElement('option');
+          option.value = r._id;
+          option.textContent = r.nome;
+          selectResp.appendChild(option);
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="loading-state"><p>Erro ao carregar responsáveis.</p></div></td></tr>';
+      }
+    }
+
+    // ===== CADASTRAR RESPONSÁVEL =====
+    document.getElementById('form-responsavel').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('input-nome-resp').value;
+      const email = document.getElementById('input-email-resp').value;
+      const telefone = document.getElementById('input-telefone-resp').value;
+      const senha = document.getElementById('input-senha-resp').value;
+
+      try {
+        await apiFetch('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ nome, email, senha, tipo: 'responsavel', telefone })
+        });
+
+        showAlert('alert-responsaveis', 'success', 'Responsável cadastrado com sucesso!');
+        document.getElementById('form-responsavel').reset();
+        loadResponsaveis();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-responsaveis', 'error', 'Erro ao cadastrar responsável: ' + err.message);
+      }
+    });
+
+    // ===== DELETAR RESPONSÁVEL =====
+    async function deleteResponsavel(respId) {
+      if (!confirm('Tem certeza que deseja deletar este responsável?')) return;
+
+      try {
+        await apiFetch(`/auth/users/${respId}`, { method: 'DELETE' });
+        showAlert('alert-responsaveis', 'success', 'Responsável deletado com sucesso!');
+        loadResponsaveis();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-responsaveis', 'error', 'Erro ao deletar responsável: ' + err.message);
+      }
+    }
+
+    // ===== REGISTRAR MENSALIDADE =====
+    document.getElementById('form-financeiro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const aluno_id = document.getElementById('select-aluno-fin').value;
+      const valor = parseFloat(document.getElementById('input-valor').value);
+      const vencimento = document.getElementById('input-vencimento').value;
+      const status = document.getElementById('select-status-fin').value;
+
+      try {
+        await apiFetch('/financeiro', {
+          method: 'POST',
+          body: JSON.stringify({ aluno_id, valor, vencimento, status })
+        });
+
+        showAlert('alert-financeiro', 'success', 'Mensalidade registrada com sucesso!');
+        document.getElementById('form-financeiro').reset();
+        loadFinanceiro();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-financeiro', 'error', 'Erro ao registrar mensalidade: ' + err.message);
+      }
+    });
+
+    // ===== CARREGAR FINANCEIRO =====
+    async function loadFinanceiro() {
+      const tbody = document.getElementById('financeiro-tbody');
+      try {
+        const financeiro = await apiFetch('/financeiro');
+
+        if (!financeiro.length) {
+          tbody.innerHTML = '<tr><td colspan="4"><div class="loading-state"><p>Nenhuma mensalidade registrada.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = financeiro.filter(f => f.status === 'pendente').map(f => {
+          const aluno = alunos.find(a => a._id === f.aluno_id);
+          return `
+            <tr>
+              <td><strong>${aluno?.nome || 'Desconhecido'}</strong></td>
+              <td>${formatCurrency(f.valor)}</td>
+              <td>${formatDate(f.vencimento)}</td>
+              <td><span style="color: var(--red);">Pendente</span></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="loading-state"><p>Erro ao carregar financeiro.</p></div></td></tr>';
+      }
+    }
+
+    // ===== CRIAR COMUNICADO =====
+    document.getElementById('form-comunicado').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const titulo = document.getElementById('input-titulo-com').value;
+      const mensagem = document.getElementById('input-mensagem-com').value;
+      const data = new Date().toISOString();
+
+      try {
+        await apiFetch('/comunicados', {
+          method: 'POST',
+          body: JSON.stringify({ titulo, mensagem, data })
+        });
+
+        showAlert('alert-comunicados', 'success', 'Comunicado publicado com sucesso!');
+        document.getElementById('form-comunicado').reset();
+        loadComunicados();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-comunicados', 'error', 'Erro ao publicar comunicado: ' + err.message);
+      }
+    });
+
+    // ===== CARREGAR COMUNICADOS =====
+    async function loadComunicados() {
+      const tbody = document.getElementById('comunicados-tbody');
+      try {
+        const comunicados = await apiFetch('/comunicados');
+
+        if (!comunicados.length) {
+          tbody.innerHTML = '<tr><td colspan="3"><div class="loading-state"><p>Nenhum comunicado publicado.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = comunicados.reverse().map(c => `
+          <tr>
+            <td><strong>${c.titulo}</strong></td>
+            <td>${formatDate(c.data)}</td>
+            <td><button class="btn btn-danger" onclick="deleteComunicado('${c._id}')"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="3"><div class="loading-state"><p>Erro ao carregar comunicados.</p></div></td></tr>';
+      }
+    }
+
+    // ===== DELETAR COMUNICADO =====
+    async function deleteComunicado(comId) {
+      if (!confirm('Tem certeza que deseja deletar este comunicado?')) return;
+
+      try {
+        await apiFetch(`/comunicados/${comId}`, { method: 'DELETE' });
+        showAlert('alert-comunicados', 'success', 'Comunicado deletado com sucesso!');
+        loadComunicados();
+        loadStats();
+      } catch (err) {
+        showAlert('alert-comunicados', 'error', 'Erro ao deletar comunicado: ' + err.message);
+      }
+    }
+
+    // ===== INICIALIZAR =====
+    async function init() {
+      await loadStats();
+      await Promise.all([
+        loadAlunos(),
+        loadResponsaveis(),
+        loadFinanceiro(),
+        loadComunicados()
+      ]);
+    }
+
+    init();
+  </script>
+</body>
+</html>
